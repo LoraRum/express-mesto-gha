@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const users = require('./routes/users');
 
-const {PORT = 3001, BASE_PATH} = process.env;
+const { PORT = 3001, BASE_PATH } = process.env;
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -22,6 +22,14 @@ const app = express();
 
 app.use(express.json());
 app.use('/users', users);
+
+app.use((req, res, next) => {
+  req.user = {
+    _id: '647a095802421e3d1f193301',
+  };
+
+  next();
+});
 
 app.listen(PORT, () => {
   console.log('Server is running');
