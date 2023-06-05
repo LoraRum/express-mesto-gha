@@ -1,5 +1,11 @@
 const Card = require('../models/card');
 
+const ERROR_CODE = {
+  BAD_REQUEST: 400,
+  NOT_FOUND: 404,
+  SERVER_ERROR: 500,
+};
+
 // Retrieve all cards
 module.exports.getAllCards = async (req, res, next) => {
   try {
@@ -17,10 +23,9 @@ module.exports.createCard = async (req, res, next) => {
     res.send(newCard);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(400).json({ error: 'Invalid card data' });
-    } else {
-      next(err);
+      err.statusCode = ERROR_CODE.BAD_REQUEST;
     }
+    next(err);
   }
 };
 
@@ -30,10 +35,52 @@ module.exports.deleteCardById = async (req, res, next) => {
     const card = await Card.findByIdAndDelete(req.params.cardId);
 
     if (!card) {
-      return res.status(404).json({ error: 'Card not found' });
+      const err = new Error('Card not found');
+      err.statusCode = ERROR_CODE.NOT_FOUND;
+      throw err;
     }
 
     res.status(200).json({ message: 'Card deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.likeCard = async (req, res, next) => {
+  try {
+    const card = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    );
+
+    if (!card) {
+      const err = new Error('Card not found');
+      err.statusCode = ERROR_CODE.NOT_FOUND;
+      throw err;
+    }
+
+    res.send(card);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.dislikeCard = async (req, res, next) => {
+  try {
+    const card = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true },
+    );
+
+    if (!card) {
+      const err = new Error('Card not found');
+      err.statusCode = ERROR_CODE.NOT_FOUND;
+      throw err;
+    }
+
+    res.send(card);
   } catch (err) {
     next(err);
   }
