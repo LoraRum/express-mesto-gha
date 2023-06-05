@@ -8,7 +8,7 @@ const ERROR_CODE = {
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
-    .then(users => res.send({ data: users }))
+    .then((users) => res.send(users))
     .catch(() => res.status(ERROR_CODE.SERVER_ERROR).json({ message: 'An error occurred on the server' }));
 };
 
@@ -16,7 +16,7 @@ module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then(user => {
+    .then((user) => {
       if (!user) {
         return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
       }
@@ -29,7 +29,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then(newUser => res.status(201).send({ data: newUser }))
+    .then((newUser) => res.status(201).send({ data: newUser }))
     .catch(() => res.status(ERROR_CODE.SERVER_ERROR).json({ message: 'An error occurred on the server' }));
 };
 
