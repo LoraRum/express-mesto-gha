@@ -28,6 +28,15 @@ db.once('open', () => {
   app.use('/users', users);
   app.use('/cards', cards);
 
+  app.use((err, req, res, next) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+
+    res.status(err.statusCode);
+    res.json(err);
+  });
+
   app.listen(PORT, (error) => {
     if (error) {
       console.error('Server failed to start:', error);
