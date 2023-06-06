@@ -24,6 +24,7 @@ module.exports.createCard = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.statusCode = ERROR_CODE.BAD_REQUEST;
+      err.message = err.message; // Set error message from ValidationError
     }
     next(err);
   }
@@ -46,6 +47,7 @@ module.exports.deleteCardById = async (req, res, next) => {
   }
 };
 
+// Like a card
 module.exports.likeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
@@ -66,6 +68,7 @@ module.exports.likeCard = async (req, res, next) => {
   }
 };
 
+// Dislike a card
 module.exports.dislikeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
