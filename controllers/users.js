@@ -47,10 +47,10 @@ module.exports.updateProfile = async (req, res, next) => {
     res.send(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE.BAD_REQUEST).json({ message: err.message || 'Invalid user data' });
-    } else {
-      next(err);
+      err.statusCode = ERROR_CODE.BAD_REQUEST;
+      err.message = err.message;
     }
+    next(err);
   }
 };
 
@@ -69,9 +69,9 @@ module.exports.updateAvatar = async (req, res, next) => {
     res.send(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE.BAD_REQUEST).json({ message: err.message || 'Invalid avatar data' });
-    } else {
-      next(err);
+      err.statusCode = ERROR_CODE.BAD_REQUEST;
+      err.message = err.message;
     }
+    next(err);
   }
 };

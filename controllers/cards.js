@@ -6,7 +6,6 @@ const ERROR_CODE = {
   SERVER_ERROR: 500,
 };
 
-// Retrieve all cards
 module.exports.getAllCards = async (req, res, next) => {
   try {
     const cards = await Card.find({}).populate(['owner', 'likes']);
@@ -16,7 +15,6 @@ module.exports.getAllCards = async (req, res, next) => {
   }
 };
 
-// Create a new card
 module.exports.createCard = async (req, res, next) => {
   try {
     const newCard = await Card.create({ ...req.body, owner: req.user._id });
@@ -24,13 +22,12 @@ module.exports.createCard = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.statusCode = ERROR_CODE.BAD_REQUEST;
-      err.message = err.message; // Set error message from ValidationError
+      err.message = err.message;
     }
     next(err);
   }
 };
 
-// Delete a card by ID
 module.exports.deleteCardById = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndDelete(req.params.cardId);
@@ -47,7 +44,6 @@ module.exports.deleteCardById = async (req, res, next) => {
   }
 };
 
-// Like a card
 module.exports.likeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
@@ -68,7 +64,6 @@ module.exports.likeCard = async (req, res, next) => {
   }
 };
 
-// Dislike a card
 module.exports.dislikeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
