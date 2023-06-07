@@ -52,6 +52,12 @@ db.once('open', () => {
     res.json(err);
   });
 
+  app.use((req, res) => {
+    res.status(404).json({
+      message: "Sorry can't find that!",
+    });
+  });
+
   app.listen(PORT, (error) => {
     if (error) {
       console.error('Server failed to start:', error);

@@ -24,9 +24,7 @@ module.exports.deleteCardById = async (req, res, next) => {
     const card = await Card.findByIdAndDelete(req.params.cardId);
 
     if (!card) {
-      const err = new Error('Card not found');
-      err.statusCode = ERROR_CODE.NOT_FOUND;
-      throw err;
+      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
     }
 
     res.status(200).json({ message: 'Card deleted successfully' });
@@ -44,9 +42,7 @@ module.exports.likeCard = async (req, res, next) => {
     );
 
     if (!card) {
-      const err = new Error('Card not found');
-      err.statusCode = ERROR_CODE.NOT_FOUND;
-      throw err;
+      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
     }
 
     res.send(card);
@@ -64,9 +60,7 @@ module.exports.dislikeCard = async (req, res, next) => {
     );
 
     if (!card) {
-      const err = new Error('Card not found');
-      err.statusCode = ERROR_CODE.NOT_FOUND;
-      throw err;
+      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
     }
 
     res.send(card);
