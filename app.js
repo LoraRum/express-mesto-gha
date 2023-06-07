@@ -30,10 +30,15 @@ db.once('open', () => {
   app.use('/cards', cards);
 
   app.use((err, req, res, next) => {
-    if (err.name === 'ValidationError') {
-      res.statusCode = ERROR_CODE.BAD_REQUEST;
-    } else {
-      res.statusCode = ERROR_CODE.SERVER_ERROR;
+    switch (err.name) {
+      case 'ValidationError':
+      case 'CastError':
+        res.statusCode = ERROR_CODE.BAD_REQUEST;
+        break;
+
+      default:
+        res.statusCode = err.statusCode || ERROR_CODE.SERVER_ERROR;
+        break;
     }
 
     next(err);
