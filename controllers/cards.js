@@ -1,10 +1,5 @@
+const { ERROR_CODE } = require('../constsns/constans');
 const Card = require('../models/card');
-
-const ERROR_CODE = {
-  BAD_REQUEST: 400,
-  NOT_FOUND: 404,
-  SERVER_ERROR: 500,
-};
 
 module.exports.getAllCards = async (req, res, next) => {
   try {
@@ -20,10 +15,6 @@ module.exports.createCard = async (req, res, next) => {
     const newCard = await Card.create({ ...req.body, owner: req.user._id });
     res.send(newCard);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.statusCode = ERROR_CODE.BAD_REQUEST;
-      err.message = err.message;
-    }
     next(err);
   }
 };

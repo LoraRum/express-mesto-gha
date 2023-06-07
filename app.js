@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const { ERROR_CODE } = require('./constsns/constans');
 
 const { PORT = 3000 } = process.env;
 const db = mongoose.connection;
@@ -29,11 +30,20 @@ db.once('open', () => {
   app.use('/cards', cards);
 
   app.use((err, req, res, next) => {
+    if (err.name === 'ValidationError') {
+      res.statusCode = ERROR_CODE.BAD_REQUEST;
+    } else {
+      res.statusCode = ERROR_CODE.SERVER_ERROR;
+    }
+
+    next(err);
+  });
+
+  app.use((err, req, res, next) => {
     if (res.headersSent) {
       return next(err);
     }
 
-    res.status(err.statusCode);
     res.json(err);
   });
 
