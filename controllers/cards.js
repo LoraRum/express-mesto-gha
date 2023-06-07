@@ -40,7 +40,7 @@ module.exports.likeCard = async (req, res, next) => {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     if (!card) {
@@ -60,7 +60,7 @@ module.exports.dislikeCard = async (req, res, next) => {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     if (!card) {

@@ -43,7 +43,7 @@ module.exports.updateProfile = async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { $set: req.body },
-      { new: true },
+      { new: true, runValidators: true },
     );
     if (!updatedUser) {
       return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
@@ -60,7 +60,7 @@ module.exports.updateAvatar = async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { avatar: req.body.avatar },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
