@@ -41,7 +41,9 @@ db.once('open', () => {
         break;
     }
 
-    next(err);
+    next({
+      message: err.message,
+    });
   });
 
   app.use((err, req, res, next) => {
