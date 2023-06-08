@@ -15,11 +15,11 @@ module.exports.getUserById = async (req, res, next) => {
     const { userId } = req.params;
     const user = await User.findById(userId);
 
-    if (!user) {
-      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
+    if (user) {
+      res.json({ data: user });
+    } else {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
     }
-
-    res.json({ data: user });
   } catch (err) {
     next(err);
   }
@@ -43,11 +43,12 @@ module.exports.updateProfile = async (req, res, next) => {
       { $set: req.body },
       { new: true, runValidators: true },
     );
-    if (!updatedUser) {
-      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
-    }
 
-    res.send(updatedUser);
+    if (updatedUser) {
+      res.send(updatedUser);
+    } else {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
+    }
   } catch (err) {
     next(err);
   }
@@ -61,11 +62,11 @@ module.exports.updateAvatar = async (req, res, next) => {
       { new: true, runValidators: true },
     );
 
-    if (!updatedUser) {
-      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
+    if (updatedUser) {
+      res.send(updatedUser);
+    } else {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
     }
-
-    res.send(updatedUser);
   } catch (err) {
     next(err);
   }
