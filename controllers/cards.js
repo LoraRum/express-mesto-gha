@@ -23,11 +23,11 @@ module.exports.deleteCardById = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndDelete(req.params.cardId);
 
-    if (!card) {
-      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
+    if (card) {
+      res.status(200).json({ message: 'Card deleted successfully' });
+    } else {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
     }
-
-    res.status(200).json({ message: 'Card deleted successfully' });
   } catch (err) {
     next(err);
   }
@@ -41,11 +41,11 @@ module.exports.likeCard = async (req, res, next) => {
       { new: true, runValidators: true },
     );
 
-    if (!card) {
-      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
+    if (card) {
+      res.send(card);
+    } else {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
     }
-
-    res.send(card);
   } catch (err) {
     next(err);
   }
@@ -59,11 +59,11 @@ module.exports.dislikeCard = async (req, res, next) => {
       { new: true, runValidators: true },
     );
 
-    if (!card) {
-      return res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
+    if (card) {
+      res.send(card);
+    } else {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
     }
-
-    res.send(card);
   } catch (err) {
     next(err);
   }

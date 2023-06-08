@@ -48,10 +48,10 @@ db.once('open', () => {
 
   app.use((err, req, res, next) => {
     if (res.headersSent) {
-      return next(err);
+      next(err);
+    } else {
+      res.json(err);
     }
-
-    res.json(err);
   });
 
   app.use((req, res) => {
@@ -64,7 +64,7 @@ db.once('open', () => {
     if (error) {
       console.error('Server failed to start:', error);
     } else {
-      console.log('Server is running');
+      console.info('Server is running');
     }
   });
 });
