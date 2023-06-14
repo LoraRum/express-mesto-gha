@@ -27,8 +27,16 @@ module.exports.getUserById = async (req, res, next) => {
 
 module.exports.createUser = async (req, res, next) => {
   try {
-    const { name, about, avatar } = req.body;
-    const newUser = await User.create({ name, about, avatar });
+    const {
+      name, about, avatar, email, password,
+    } = req.body;
+    const newUser = await User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password,
+    });
 
     res.status(201).json({ data: newUser });
   } catch (err) {
