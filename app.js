@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { login, createUser } = require('./controllers/users');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { ERROR_CODE } = require('./constsns/constans');
@@ -25,6 +26,8 @@ db.once('open', () => {
     };
     next();
   });
+  app.post('/signin', login);
+  app.post('/signup', createUser);
 
   app.use('/users', users);
   app.use('/cards', cards);

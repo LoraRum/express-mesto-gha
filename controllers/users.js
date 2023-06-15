@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { ERROR_CODE } = require('../constsns/constans');
 const User = require('../models/user');
 
@@ -77,5 +79,26 @@ module.exports.updateAvatar = async (req, res, next) => {
     }
   } catch (err) {
     next(err);
+  }
+};
+
+module.exports.login = async (request, response, next) => {
+  try {
+    const { email, password } = request.body;
+
+    const user = await User.findUserByCredentials(email, password);
+
+    const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+      expiresIn: '7d',
+    });
+
+    response.cookie('jwt', token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    });
+
+    response.send({ token });
+  } catch (error) {
+    next(error);
   }
 };
