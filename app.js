@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { ERROR_CODE } = require('./constsns/constans');
@@ -20,12 +21,8 @@ db.once('open', () => {
 
   app.use(express.json());
 
-  app.use((req, res, next) => {
-    req.user = {
-      _id: '647a095802421e3d1f193301',
-    };
-    next();
-  });
+  app.all(['/users*', '/cards*'], auth);
+
   app.post('/signin', login);
   app.post('/signup', createUser);
 

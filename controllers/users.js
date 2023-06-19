@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { ERROR_CODE } = require('../constsns/constans');
 const User = require('../models/user');
+const secretKey = require('../constsns/secret-key');
 
 module.exports.getAllUsers = async (req, res, next) => {
   try {
@@ -32,14 +33,17 @@ module.exports.createUser = async (req, res, next) => {
     const {
       name, about, avatar, email, password,
     } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await User.create({
       name,
       about,
       avatar,
       email,
-      password,
+      password: hashedPassword,
     });
 
+    // todo: do not add password to the response
     res.status(201).json({ data: newUser });
   } catch (err) {
     next(err);
@@ -82,13 +86,14 @@ module.exports.updateAvatar = async (req, res, next) => {
   }
 };
 
-module.exports.login = async (request, response, next) => {
+// todo: test it with postman, it should return 401 in case of wrong credentials
+module.exports.login = async (request, response) => {
   try {
     const { email, password } = request.body;
 
     const user = await User.findUserByCredentials(email, password);
 
-    const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+    const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '7d',
     });
 
@@ -99,6 +104,23 @@ module.exports.login = async (request, response, next) => {
 
     response.send({ token });
   } catch (error) {
-    next(error);
+    response.status(401).json({ message: 'Invalid email or password' });
+  }
+};
+
+module.exports.getCurrentUser = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+
+    const user = await User.findOne({ _id });
+    user.password = undefined;
+
+    res.send({ user });
+  } catch (error) {
+    if (error.name === 'NotFoundError') {
+      res.status(ERROR_CODE.NOT_FOUND).json({ message: error.message });
+    } else {
+      next(error);
+    }
   }
 };
