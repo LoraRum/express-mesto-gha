@@ -1,5 +1,5 @@
-const { ERROR_CODE } = require('../constsns/constans');
 const Card = require('../models/card');
+const NotFound = require('../errors/NotFound');
 
 module.exports.getAllCards = async (req, res, next) => {
   try {
@@ -26,7 +26,7 @@ module.exports.deleteCardById = async (req, res, next) => {
     if (card) {
       res.status(200).json({ message: 'Card deleted successfully' });
     } else {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
+      res.status(NotFound).json({ message: 'Card not found' });
     }
   } catch (err) {
     next(err);
@@ -44,7 +44,7 @@ module.exports.likeCard = async (req, res, next) => {
     if (card) {
       res.send(card);
     } else {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
+      res.status(NotFound).json({ message: 'Card not found' });
     }
   } catch (err) {
     next(err);
@@ -62,7 +62,7 @@ module.exports.dislikeCard = async (req, res, next) => {
     if (card) {
       res.send(card);
     } else {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'Card not found' });
+      res.status(NotFound).json({ message: 'Card not found' });
     }
   } catch (err) {
     next(err);

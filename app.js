@@ -1,9 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const handleError = require('./middlewares/error-processing');
 const { ERROR_CODE } = require('./constsns/constans');
 
 const { PORT = 3000 } = process.env;
@@ -59,6 +61,10 @@ db.once('open', () => {
       message: "Sorry can't find that!",
     });
   });
+
+  app.use(errors());
+
+  app.use(handleError);
 
   app.listen(PORT, (error) => {
     if (error) {

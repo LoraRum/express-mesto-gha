@@ -1,8 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { ERROR_CODE } = require('../constsns/constans');
 const User = require('../models/user');
 const secretKey = require('../constsns/secret-key');
+const BadRequest = require('../errors/BadRequest');
+const ConflictError = require('../errors/ConflictError');
+const NotFound = require('../errors/NotFound');
+const Unauthorized = require('../errors/Unauthorized');
 
 module.exports.getAllUsers = async (req, res, next) => {
   try {
@@ -21,7 +24,7 @@ module.exports.getUserById = async (req, res, next) => {
     if (user) {
       res.json({ data: user });
     } else {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
+      res.status(NotFound).json({ message: 'User not found' });
     }
   } catch (err) {
     next(err);
@@ -45,9 +48,9 @@ module.exports.createUser = async (req, res, next) => {
     res.status(201).json({ data: newUser });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(ERROR_CODE.BAD_REQUEST).json({ message: 'Incorrect data passed during user creation' });
+      res.status(BadRequest).json({ message: 'Incorrect data passed during user creation' });
     } else if (error.name === 'MongoServerError') {
-      res.status(ERROR_CODE.CONFLICT_ERROR).json({ message: 'When registering, an email is specified that already exists on the server' });
+      res.status(ConflictError).json({ message: 'When registering, an email is specified that already exists on the server' });
     } else {
       next(error);
     }
@@ -65,7 +68,7 @@ module.exports.updateProfile = async (req, res, next) => {
     if (updatedUser) {
       res.send(updatedUser);
     } else {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
+      res.status(NotFound).json({ message: 'User not found' });
     }
   } catch (err) {
     next(err);
@@ -83,14 +86,13 @@ module.exports.updateAvatar = async (req, res, next) => {
     if (updatedUser) {
       res.send(updatedUser);
     } else {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: 'User not found' });
+      res.status(NotFound).json({ message: 'User not found' });
     }
   } catch (err) {
     next(err);
   }
 };
 
-// todo: test it with postman, it should return 401 in case of wrong credentials
 module.exports.login = async (request, response) => {
   try {
     const { email, password } = request.body;
@@ -108,7 +110,7 @@ module.exports.login = async (request, response) => {
 
     response.send({ token });
   } catch (error) {
-    response.status(401).json({ message: 'Invalid email or password' });
+    response.status(Unauthorized).json({ message: 'Invalid email or password' });
   }
 };
 
@@ -122,7 +124,7 @@ module.exports.getCurrentUser = async (req, res, next) => {
     res.send({ user });
   } catch (error) {
     if (error.name === 'NotFoundError') {
-      res.status(ERROR_CODE.NOT_FOUND).json({ message: error.message });
+      res.status(NotFound).json({ message: error.message });
     } else {
       next(error);
     }
