@@ -17,6 +17,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
 
+/**
+ * @todo
+ *   validate ids
+ *   check card owner when deleting a card
+ */
+
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', console.info.bind(console, 'Connected to MongoDB'));
 

@@ -25,9 +25,9 @@ module.exports.deleteCardById = async (req, res, next) => {
 
     if (!card) {
       next(new NotFound('Card not found'));
+    } else {
+      res.status(200).json({ message: 'Card deleted successfully' });
     }
-
-    res.status(200).json({ message: 'Card deleted successfully' });
   } catch (err) {
     next(err);
   }
@@ -43,9 +43,9 @@ module.exports.likeCard = async (req, res, next) => {
 
     if (!card) {
       next(new NotFound('Card not found'));
+    } else {
+      res.send(card);
     }
-
-    res.send(card);
   } catch (err) {
     next(err);
   }
@@ -61,9 +61,9 @@ module.exports.dislikeCard = async (req, res, next) => {
 
     if (!card) {
       next(new NotFound('Card not found'));
+    } else {
+      res.send(card);
     }
-
-    res.send(card);
   } catch (err) {
     next(err);
   }
