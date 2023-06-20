@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const NotFound = require('../errors/NotFound');
 const Unauthorized = require('../errors/Unauthorized');
+const BadRequest = require('../errors/BadRequest');
 
 module.exports.getAllCards = async (req, res, next) => {
   try {
@@ -22,20 +23,31 @@ module.exports.createCard = async (req, res, next) => {
 
 module.exports.deleteCardById = async (req, res, next) => {
   try {
-    const card = await Card.findById(req.params.cardId);
+    const { cardId } = req.params;
+    const card = await Card.findById(cardId);
 
     if (!card) {
       next(new NotFound('Card not found'));
-    } else if (card.owner !== req.user.id) {
-      next(new Unauthorized('You are not the owner of this card'));
+    } else if (card.owner.toString() !== req.user._id) {
+      next(new Unauthorized('Deletion is not possible'));
     } else {
-      await Card.findByIdAndDelete(req.params.cardId);
-      res.status(200).json({ message: 'Card deleted successfully' });
+      const deletedCard = await Card.findByIdAndRemove(cardId);
+
+      if (!deletedCard) {
+        next(new NotFound('Card not found'));
+      } else {
+        res.status(200).json(deletedCard);
+      }
     }
   } catch (err) {
-    next(err);
+    if (err.name === 'CastError') {
+      next(new BadRequest('Incorrect data provided'));
+    } else {
+      next(err);
+    }
   }
 };
+
 module.exports.likeCard = async (req, res, next) => {
   try {
     const card = await Card.findByIdAndUpdate(
