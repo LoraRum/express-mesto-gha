@@ -24,7 +24,7 @@ module.exports.getUserById = async (req, res, next) => {
     if (user) {
       res.json({ data: user });
     } else {
-      res.status(NotFound).json({ message: 'User not found' });
+      throw new NotFound('User not found');
     }
   } catch (err) {
     next(err);
@@ -48,9 +48,9 @@ module.exports.createUser = async (req, res, next) => {
     res.status(201).json({ data: newUser });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(BadRequest).json({ message: 'Incorrect data passed during user creation' });
+      throw new BadRequest('Incorrect data passed during user creation');
     } else if (error.name === 'MongoServerError') {
-      res.status(ConflictError).json({ message: 'When registering, an email is specified that already exists on the server' });
+      throw new ConflictError('When registering, an email is specified that already exists on the server');
     } else {
       next(error);
     }
@@ -68,7 +68,7 @@ module.exports.updateProfile = async (req, res, next) => {
     if (updatedUser) {
       res.send(updatedUser);
     } else {
-      res.status(NotFound).json({ message: 'User not found' });
+      throw new NotFound('User not found');
     }
   } catch (err) {
     next(err);
@@ -86,18 +86,22 @@ module.exports.updateAvatar = async (req, res, next) => {
     if (updatedUser) {
       res.send(updatedUser);
     } else {
-      res.status(NotFound).json({ message: 'User not found' });
+      throw new NotFound('User not found');
     }
   } catch (err) {
     next(err);
   }
 };
 
-module.exports.login = async (request, response) => {
+module.exports.login = async (request, response, next) => {
   try {
     const { email, password } = request.body;
 
     const user = await User.findUserByCredentials(email, password);
+
+    if (!user) {
+      throw new Unauthorized('Invalid email or password');
+    }
 
     const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '7d',
@@ -110,7 +114,7 @@ module.exports.login = async (request, response) => {
 
     response.send({ token });
   } catch (error) {
-    response.status(Unauthorized).json({ message: 'Invalid email or password' });
+    next(error);
   }
 };
 
@@ -121,12 +125,12 @@ module.exports.getCurrentUser = async (req, res, next) => {
     const user = await User.findOne({ _id });
     user.password = undefined;
 
+    if (!user) {
+      throw new NotFound('User not found');
+    }
+
     res.send({ user });
   } catch (error) {
-    if (error.name === 'NotFoundError') {
-      res.status(NotFound).json({ message: error.message });
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
