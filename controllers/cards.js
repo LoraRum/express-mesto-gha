@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const NotFound = require('../errors/NotFound');
-const Unauthorized = require('../errors/Unauthorized');
+const Forbidden = require('../errors/Forbidden');
 const BadRequest = require('../errors/BadRequest');
 
 module.exports.getAllCards = async (req, res, next) => {
@@ -29,7 +29,7 @@ module.exports.deleteCardById = async (req, res, next) => {
     if (!card) {
       next(new NotFound('Card not found'));
     } else if (card.owner.toString() !== req.user._id) {
-      next(new Unauthorized('Deletion is not possible'));
+      next(new Forbidden('Deletion is not possible'));
     } else {
       const deletedCard = await Card.findByIdAndRemove(cardId);
 
