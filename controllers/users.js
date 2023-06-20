@@ -42,11 +42,15 @@ module.exports.createUser = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
-
-    // todo: do not add password to the response
     res.status(201).json({ data: newUser });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      res.status(ERROR_CODE.BAD_REQUEST).json({ message: 'Incorrect data passed during user creation' });
+    } else if (error.name === 'MongoServerError') {
+      res.status(ERROR_CODE.CONFLICT_ERROR).json({ message: 'When registering, an email is specified that already exists on the server' });
+    } else {
+      next(error);
+    }
   }
 };
 
