@@ -4,7 +4,7 @@ const NotFound = require('../errors/NotFound');
 module.exports.getAllCards = async (req, res, next) => {
   try {
     const cards = await Card.find({}).populate(['owner', 'likes']);
-    res.send(cards);
+    res.json(cards);
   } catch (err) {
     next(err);
   }

@@ -1,13 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const BodyParser = require('body-parser');
-const { errors, isCelebrateError } = require('celebrate');
+const { errors } = require('celebrate');
+
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
-const handleError = require('./middlewares/error-processing');
-const { ERROR_CODE } = require('./constsns/constans');
 const { validateLogin, validateCreateUser } = require('./middlewares/validation');
 const { BadRequest } = require('./errors/errors');
 
@@ -38,10 +37,20 @@ db.once('open', () => {
   app.use(errors());
 
   app.use((err, req, res, next) => {
+    if (err.name === 'CastError') {
+      next(new BadRequest());
+    }
+
+    next(err);
+  });
+
+  app.use((err, req, res, next) => {
     if (res.headersSent) {
       next(err);
     } else {
-      res.json(err);
+      res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || 'Server Exception' });
     }
   });
 

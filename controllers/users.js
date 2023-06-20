@@ -5,7 +5,6 @@ const secretKey = require('../constsns/secret-key');
 const BadRequest = require('../errors/BadRequest');
 const ConflictError = require('../errors/ConflictError');
 const NotFound = require('../errors/NotFound');
-const Unauthorized = require('../errors/Unauthorized');
 
 module.exports.getAllUsers = async (req, res, next) => {
   try {
@@ -45,7 +44,9 @@ module.exports.createUser = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
-    res.status(201).json({ data: newUser });
+
+    const user = await User.findById(newUser._id);
+    res.status(201).json({ data: user });
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new BadRequest('Incorrect data passed during user creation'));
@@ -98,11 +99,6 @@ module.exports.login = async (request, response, next) => {
     const { email, password } = request.body;
 
     const user = await User.findUserByCredentials(email, password);
-
-    if (!user) {
-      next(new Unauthorized('Invalid email or password'));
-    }
-
     const token = jwt.sign({ _id: user._id }, secretKey, {
       expiresIn: '7d',
     });
