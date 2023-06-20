@@ -24,7 +24,7 @@ module.exports.getUserById = async (req, res, next) => {
     if (user) {
       res.json({ data: user });
     } else {
-      throw new NotFound('User not found');
+      next(new NotFound('User not found'));
     }
   } catch (err) {
     next(err);
@@ -48,9 +48,9 @@ module.exports.createUser = async (req, res, next) => {
     res.status(201).json({ data: newUser });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      throw new BadRequest('Incorrect data passed during user creation');
+      next(new BadRequest('Incorrect data passed during user creation'));
     } else if (error.name === 'MongoServerError') {
-      throw new ConflictError('When registering, an email is specified that already exists on the server');
+      next(new ConflictError('When registering, an email is specified that already exists on the server'));
     } else {
       next(error);
     }
@@ -68,7 +68,7 @@ module.exports.updateProfile = async (req, res, next) => {
     if (updatedUser) {
       res.send(updatedUser);
     } else {
-      throw new NotFound('User not found');
+      next(new NotFound('User not found'));
     }
   } catch (err) {
     next(err);
@@ -86,7 +86,7 @@ module.exports.updateAvatar = async (req, res, next) => {
     if (updatedUser) {
       res.send(updatedUser);
     } else {
-      throw new NotFound('User not found');
+      next(new NotFound('User not found'));
     }
   } catch (err) {
     next(err);
@@ -100,7 +100,7 @@ module.exports.login = async (request, response, next) => {
     const user = await User.findUserByCredentials(email, password);
 
     if (!user) {
-      throw new Unauthorized('Invalid email or password');
+      next(new Unauthorized('Invalid email or password'));
     }
 
     const token = jwt.sign({ _id: user._id }, secretKey, {
@@ -126,7 +126,7 @@ module.exports.getCurrentUser = async (req, res, next) => {
     user.password = undefined;
 
     if (!user) {
-      throw new NotFound('User not found');
+      next(new NotFound('User not found'));
     }
 
     res.send({ user });

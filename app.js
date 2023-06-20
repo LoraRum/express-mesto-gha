@@ -35,6 +35,7 @@ db.once('open', () => {
     switch (err.name) {
       case 'ValidationError':
       case 'CastError':
+        new BadRequest('Incorrect data passed during user creation');
         res.statusCode = ERROR_CODE.BAD_REQUEST;
         break;
 
