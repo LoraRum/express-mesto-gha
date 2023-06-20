@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const BodyParser = require('body-parser');
-const { errors } = require('celebrate');
+const { errors, isCelebrateError } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const users = require('./routes/users');
@@ -9,6 +9,7 @@ const cards = require('./routes/cards');
 const handleError = require('./middlewares/error-processing');
 const { ERROR_CODE } = require('./constsns/constans');
 const { validateLogin, validateCreateUser } = require('./middlewares/validation');
+const { BadRequest } = require('./errors/errors');
 
 const { PORT = 3000 } = process.env;
 const db = mongoose.connection;
@@ -34,22 +35,7 @@ db.once('open', () => {
   app.use('/users', users);
   app.use('/cards', cards);
 
-  app.use((err, req, res, next) => {
-    switch (err.name) {
-      case 'ValidationError':
-      case 'CastError':
-        res.statusCode = ERROR_CODE.BAD_REQUEST;
-        break;
-
-      default:
-        res.statusCode = err.statusCode || ERROR_CODE.SERVER_ERROR;
-        break;
-    }
-
-    next({
-      message: err.message,
-    });
-  });
+  app.use(errors());
 
   app.use((err, req, res, next) => {
     if (res.headersSent) {
@@ -64,10 +50,6 @@ db.once('open', () => {
       message: "Sorry can't find that!",
     });
   });
-
-  app.use(errors());
-
-  app.use(handleError);
 
   app.listen(PORT, (error) => {
     if (error) {
