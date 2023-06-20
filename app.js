@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const BodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -7,6 +8,7 @@ const users = require('./routes/users');
 const cards = require('./routes/cards');
 const handleError = require('./middlewares/error-processing');
 const { ERROR_CODE } = require('./constsns/constans');
+const { validateLogin, validateCreateUser } = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
 const db = mongoose.connection;
@@ -22,11 +24,12 @@ db.once('open', () => {
   const app = express();
 
   app.use(express.json());
+  app.use(BodyParser.json());
 
   app.all(['/users*', '/cards*'], auth);
 
-  app.post('/signin', login);
-  app.post('/signup', createUser);
+  app.post('/signin', validateLogin, login);
+  app.post('/signup', validateCreateUser, createUser);
 
   app.use('/users', users);
   app.use('/cards', cards);
