@@ -9,7 +9,7 @@ const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { validateLogin, validateCreateUser } = require('./middlewares/validation');
-const { BadRequest } = require('./errors/errors');
+const { BadRequest, NotFound } = require('./errors/errors');
 
 const { PORT = 3000 } = process.env;
 const db = mongoose.connection;
@@ -36,6 +36,10 @@ db.once('open', () => {
   app.use('/users', users);
   app.use('/cards', cards);
 
+  app.use((req, res, next) => {
+    next(new NotFound('Route not found'));
+  });
+
   app.use(errors());
 
   app.use((err, req, res, next) => {
@@ -54,12 +58,6 @@ db.once('open', () => {
         .status(err.statusCode || 500)
         .json({ message: err.message || 'Server Exception' });
     }
-  });
-
-  app.use((req, res) => {
-    res.status(404).json({
-      message: "Sorry can't find that!",
-    });
   });
 
   app.listen(PORT, (error) => {

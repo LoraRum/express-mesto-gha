@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
     return next(error);
   }
 
-  const token = authorization.replace('Bearer ', '');
+  const token = req.cookies.jwt;
   let payload;
 
   try {
